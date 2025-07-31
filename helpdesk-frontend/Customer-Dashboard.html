@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Dashboard - Help Desk</title>
+    <link rel="stylesheet" href="Customer-Dashboard.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <i class="fas fa-headset"></i>
+          <span>Help Desk</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="notifications" onclick="toggleNotifications()">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notificationBadge">0</span>
+        </div>
+        <div class="user-menu" onclick="toggleUserMenu()">
+          <img
+            src="/placeholder.svg?height=40&width=40"
+            alt="Profile"
+            id="profileImage"
+            class="profile-img"
+          />
+          <span id="userName">Loading...</span>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notifications Dropdown -->
+    <div class="notifications-dropdown" id="notificationsDropdown">
+      <div class="notifications-header">
+        <h3>Notifications</h3>
+        <button onclick="markAllAsRead()" class="mark-all-read">
+          Mark all as read
+        </button>
+      </div>
+      <div class="notifications-list" id="notificationsList">
+        <div class="no-notifications">No new notifications</div>
+      </div>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+      <a href="#" onclick="showProfile()"
+        ><i class="fas fa-user"></i> Profile</a
+      >
+      <a href="#" onclick="showSettings()"
+        ><i class="fas fa-cog"></i> Settings</a
+      >
+      <a href="#" onclick="logout()"
+        ><i class="fas fa-sign-out-alt"></i> Logout</a
+      >
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Stats -->
+      <section class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="totalTickets">0</h3>
+              <p>Total Tickets</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon open">
+              <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="openTickets">0</h3>
+              <p>Open Tickets</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon progress">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="inProgressTickets">0</h3>
+              <p>In Progress</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon resolved">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="resolvedTickets">0</h3>
+              <p>Resolved</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <button class="action-btn primary" onclick="showCreateTicket()">
+            <i class="fas fa-plus"></i>
+            <span>Create New Ticket</span>
+          </button>
+          <button class="action-btn" onclick="showMyTickets()">
+            <i class="fas fa-list"></i>
+            <span>View My Tickets</span>
+          </button>
+          <button class="action-btn" onclick="showKnowledgeBase()">
+            <i class="fas fa-book"></i>
+            <span>Knowledge Base</span>
+          </button>
+          <button class="action-btn" onclick="showContactSupport()">
+            <i class="fas fa-phone"></i>
+            <span>Contact Support</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Recent Tickets -->
+      <section class="recent-tickets">
+        <div class="section-header">
+          <h2>Recent Tickets</h2>
+          <button class="view-all-btn" onclick="showMyTickets()">
+            View All
+          </button>
+        </div>
+        <div class="tickets-container" id="recentTicketsContainer">
+          <div class="loading">Loading tickets...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Create Ticket Modal -->
+    <div id="createTicketModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create New Ticket</h3>
+          <span class="close" onclick="closeModal('createTicketModal')"
+            >&times;</span
+          >
+        </div>
+        <form id="createTicketForm">
+          <div class="form-group">
+            <label for="ticketTitle">Title *</label>
+            <input
+              type="text"
+              id="ticketTitle"
+              required
+              placeholder="Brief description of your issue"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="ticketCategory">Category *</label>
+            <select id="ticketCategory" required>
+              <option value="">Select a category</option>
+              <option value="TECHNICAL_SUPPORT">Technical Support</option>
+              <option value="BILLING_PAYMENTS">Billing & Payments</option>
+              <option value="ACCOUNT_MANAGEMENT">Account Management</option>
+              <option value="NETWORK_CONNECTIVITY">Network Connectivity</option>
+              <option value="FEATURE_REQUESTS">Feature Requests</option>
+              <option value="TRAINING_DOCUMENTATION">Training & Documentation</option>
+              <option value="GENERAL_INQUIRY">General Inquiry</option>
+              <option value="OTHERS">Others</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ticketDescription">Description *</label>
+            <textarea
+              id="ticketDescription"
+              required
+              rows="5"
+              placeholder="Please provide detailed information about your issue..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="ticketAttachment">Attachment (Optional)</label>
+            <input
+              type="file"
+              id="ticketAttachment"
+              accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+            />
+            <small
+              >Supported formats: JPG, PNG, PDF, DOC, DOCX (Max 10MB)</small
+            >
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              onclick="closeModal('createTicketModal')"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary" id="createTicketBtn">
+              <span>Create Ticket</span>
+              <div class="spinner" id="createTicketSpinner"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- My Tickets Modal -->
+    <div id="myTicketsModal" class="modal large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>My Tickets</h3>
+          <span class="close" onclick="closeModal('myTicketsModal')"
+            >&times;</span
+          >
+        </div>
+
+        <div class="tickets-filters">
+          <div class="filter-group">
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter" onchange="filterTickets()">
+              <option value="">All Status</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="PENDING_CUSTOMER_RESPONSE">
+                Pending Response
+              </option>
+              <option value="RESOLVED">Resolved</option>
+              <option value="CLOSED">Closed</option>
+              <option value="REOPENED">Reopened</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="sortBy">Sort by:</label>
+            <select id="sortBy" onchange="filterTickets()">
+              <option value="createdAt">Date Created</option>
+              <option value="updatedAt">Last Updated</option>
+              <option value="priority">Priority</option>
+              <option value="status">Status</option>
+            </select>
+          </div>
+
+          <button class="refresh-btn" onclick="loadMyTickets()">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
+
+        <div class="tickets-list" id="myTicketsList">
+          <div class="loading">Loading tickets...</div>
+        </div>
+
+        <div class="pagination" id="ticketsPagination"></div>
+      </div>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketDetailsModal" class="modal large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="ticketDetailsTitle">Ticket Details</h3>
+          <span class="close" onclick="closeModal('ticketDetailsModal')"
+            >&times;</span
+          >
+        </div>
+        <div id="ticketDetailsContent">
+          <div class="loading">Loading ticket details...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>My Profile</h3>
+          <span class="close" onclick="closeModal('profileModal')"
+            >&times;</span
+          >
+        </div>
+        <form id="profileForm">
+          <div class="profile-image-section">
+            <img
+              src="/placeholder.svg?height=100&width=100"
+              alt="Profile"
+              id="profileImageLarge"
+              class="profile-img-large"
+            />
+            <input
+              type="file"
+              id="profileImageInput"
+              accept="image/*"
+              style="display: none"
+            />
+            <button
+              type="button"
+              onclick="document.getElementById('profileImageInput').click()"
+              class="change-photo-btn"
+            >
+              Change Photo
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profileFirstName">First Name</label>
+              <input type="text" id="profileFirstName" required />
+            </div>
+            <div class="form-group">
+              <label for="profileLastName">Last Name</label>
+              <input type="text" id="profileLastName" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="profileEmail">Email</label>
+            <input type="email" id="profileEmail" readonly />
+          </div>
+
+          <div class="form-group">
+            <label for="profilePhone">Phone Number</label>
+            <input type="tel" id="profilePhone" />
+          </div>
+
+          <div class="form-group">
+            <label for="profileCompany">Company</label>
+            <input type="text" id="profileCompany" />
+          </div>
+
+          <div class="form-group">
+            <label for="profileAddress">Address</label>
+            <textarea id="profileAddress" rows="3"></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              onclick="closeModal('profileModal')"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="alert" id="alertMessage"></div>
+
+    <script src="Customer-Dashboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Desk - Register</title>
+    <link rel="stylesheet" href="Registration.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="logo">
+                    <i class="fas fa-headset"></i>
+                    <h1>Help Desk</h1>
+                </div>
+                <p>Create your account</p>
+            </div>
+            
+            <form id="registerForm" class="register-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="firstName" name="firstName" required placeholder="Enter first name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="lastName" name="lastName" required placeholder="Enter last name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="Enter phone number">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" required placeholder="Create password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                            <i class="fas fa-eye" id="toggleIcon1"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password">
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye" id="toggleIcon2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Customer-specific fields -->
+                <div id="customerFields">
+                    <div class="form-group">
+                        <label for="companyName">Company Name (Optional)</label>
+                        <div class="input-group">
+                            <i class="fas fa-building"></i>
+                            <input type="text" id="companyName" name="companyName" placeholder="Enter company name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address (Optional)</label>
+                        <div class="input-group">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <textarea id="address" name="address" placeholder="Enter your address" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        I agree to the <a href="#" onclick="showTerms()">Terms of Service</a> and <a href="#" onclick="showPrivacy()">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="emailUpdates">
+                        <span class="checkmark"></span>
+                        I want to receive email updates about my tickets
+                    </label>
+                </div>
+                
+                <button type="submit" class="register-btn" id="registerBtn">
+                    <span class="btn-text">Create Account</span>
+                    <div class="spinner" id="registerSpinner"></div>
+                </button>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <div class="login-link">
+                    <p>Already have an account? <a href="Login.html">Sign in</a></p>
+                </div>
+            </form>
+            
+            <div class="alert" id="alertMessage"></div>
+        </div>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Terms of Service</h3>
+                <span class="close" onclick="closeModal('termsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>By using our Help Desk service, you agree to the following terms:</p>
+                <ul>
+                    <li>You will provide accurate information when creating tickets</li>
+                    <li>You will not abuse the system or create spam tickets</li>
+                    <li>You understand that response times may vary based on priority</li>
+                    <li>You will treat support staff with respect and professionalism</li>
+                    <li>You are responsible for keeping your account credentials secure</li>
+                </ul>
+                <p>These terms are subject to change. Continued use of the service constitutes acceptance of any modifications.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Privacy Policy</h3>
+                <span class="close" onclick="closeModal('privacyModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>We are committed to protecting your privacy:</p>
+                <ul>
+                    <li>We collect only necessary information to provide support services</li>
+                    <li>Your personal data is encrypted and stored securely</li>
+                    <li>We do not share your information with third parties without consent</li>
+                    <li>You can request deletion of your data at any time</li>
+                    <li>We use cookies to improve your experience on our platform</li>
+                </ul>
+                <p>For questions about our privacy practices, please contact our support team.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="Registration.js"></script>
+</body>
+</html>

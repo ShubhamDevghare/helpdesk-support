@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Dashboard - Help Desk</title>
+    <link rel="stylesheet" href="Agent-Dashboard.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <i class="fas fa-headset"></i>
+          <span>Help Desk - Agent</span>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input
+            type="text"
+            id="ticketSearch"
+            placeholder="Search assigned tickets..."
+            onkeypress="handleSearchKeyPress(event)"
+          />
+          <button onclick="searchAssignedTickets()" class="search-btn">Search</button>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="agent-status">
+          <span>Status:</span>
+          <select id="agentStatus" onchange="updateAgentStatus()">
+            <option value="ONLINE">Online</option>
+            <option value="BUSY">Busy</option>
+            <option value="AWAY">Away</option>
+            <option value="OFFLINE">Offline</option>
+          </select>
+        </div>
+        <div class="notifications" onclick="toggleNotifications()">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge" id="notificationBadge">0</span>
+        </div>
+        <div class="user-menu" onclick="toggleUserMenu()">
+          <img
+            src="/placeholder.svg?height=40&width=40"
+            alt="Profile"
+            id="profileImage"
+            class="profile-img"
+          />
+          <div class="user-info">
+            <span id="userName">Loading...</span>
+            <small id="employeeId">EMP-0000</small>
+          </div>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- Notifications Dropdown -->
+    <div class="notifications-dropdown" id="notificationsDropdown">
+      <div class="notifications-header">
+        <h3>Notifications</h3>
+        <button onclick="markAllAsRead()" class="mark-all-read">
+          Mark all as read
+        </button>
+      </div>
+      <div class="notifications-list" id="notificationsList">
+        <div class="no-notifications">No new notifications</div>
+      </div>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+      <a href="#" onclick="showProfile()"
+        ><i class="fas fa-user"></i> Profile</a
+      >
+      <a href="#" onclick="showEscalatedTickets()"
+        ><i class="fas fa-exclamation-triangle"></i> Escalated Tickets</a
+      >
+      <a href="#" onclick="showPerformance()"
+        ><i class="fas fa-chart-line"></i> Performance</a
+      >
+      <a href="#" onclick="showSettings()"
+        ><i class="fas fa-cog"></i> Settings</a
+      >
+      <a href="#" onclick="logout()"
+        ><i class="fas fa-sign-out-alt"></i> Logout</a
+      >
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Stats -->
+      <section class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="totalAssigned">0</h3>
+              <p>Total Assigned</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon open">
+              <i class="fas fa-folder-open"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="openTickets">0</h3>
+              <p>Open Tickets</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon progress">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="inProgressTickets">0</h3>
+              <p>In Progress</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon resolved">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="resolvedTickets">0</h3>
+              <p>Resolved Today</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon escalated">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="escalatedToMe">0</h3>
+              <p>Escalated to Me</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Actions -->
+      <section class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="actions-grid">
+          <button class="action-btn primary" onclick="showAssignedTickets()">
+            <i class="fas fa-list"></i>
+            <span>View Assigned Tickets</span>
+          </button>
+          <button class="action-btn" onclick="showHighPriorityTickets()">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>High Priority Tickets</span>
+          </button>
+          <button class="action-btn" onclick="showPendingTickets()">
+            <i class="fas fa-hourglass-half"></i>
+            <span>Pending Response</span>
+          </button>
+          <button class="action-btn" onclick="showEscalatedTickets()">
+            <i class="fas fa-arrow-up"></i>
+            <span>Escalated to Me</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Recent Tickets -->
+      <section class="recent-tickets">
+        <div class="section-header">
+          <h2>Recent Assigned Tickets</h2>
+          <div class="filter-controls">
+            <select id="priorityFilter" onchange="filterTickets()">
+              <option value="">All Priorities</option>
+              <option value="HIGH">High</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="LOW">Low</option>
+              <option value="CRITICAL">Critical</option>
+            </select>
+            <select id="statusFilter" onchange="filterTickets()">
+              <option value="">All Status</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="PENDING_CUSTOMER_RESPONSE">
+                Pending Response
+              </option>
+              <option value="RESOLVED">Resolved</option>
+            </select>
+            <button class="refresh-btn" onclick="loadAssignedTickets()">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+        <div class="tickets-container" id="ticketsContainer">
+          <div class="loading">Loading tickets...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketDetailsModal" class="modal large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="ticketDetailsTitle">Ticket Details</h3>
+          <span class="close" onclick="closeModal('ticketDetailsModal')"
+            >&times;</span
+          >
+        </div>
+        <div id="ticketDetailsContent">
+          <div class="loading">Loading ticket details...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Update Ticket Modal -->
+    <div id="updateTicketModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Update Ticket</h3>
+          <span class="close" onclick="closeModal('updateTicketModal')"
+            >&times;</span
+          >
+        </div>
+        <form id="updateTicketForm">
+          <input type="hidden" id="updateTicketId" />
+
+          <div class="form-group">
+            <label for="updateStatus">Status</label>
+            <select id="updateStatus" required>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="PENDING_CUSTOMER_RESPONSE">
+                Pending Customer Response
+              </option>
+              <option value="RESOLVED">Resolved</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="updatePriority">Priority</label>
+            <select id="updatePriority">
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="updateCategory">Category</label>
+            <select id="updateCategory">
+              <option value="TECHNICAL_SUPPORT">Technical Support</option>
+              <option value="BILLING_PAYMENTS">Billing & Payments</option>
+              <option value="ACCOUNT_MANAGEMENT">Account Management</option>
+              <option value="NETWORK_CONNECTIVITY">Network Connectivity</option>
+              <option value="FEATURE_REQUESTS">Feature Requests</option>
+              <option value="TRAINING_DOCUMENTATION">
+                Training & Documentation
+              </option>
+              <option value="GENERAL_INQUIRY">General Inquiry</option>
+              <option value="OTHERS">Others</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              onclick="closeModal('updateTicketModal')"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">Update Ticket</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Comment Modal -->
+    <div id="addCommentModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add Comment</h3>
+          <span class="close" onclick="closeModal('addCommentModal')"
+            >&times;</span
+          >
+        </div>
+        <form id="addCommentForm">
+          <input type="hidden" id="commentTicketId" />
+
+          <div class="form-group">
+            <label for="commentType">Comment Type</label>
+            <select id="commentType" required>
+              <option value="AGENT_RESPONSE">Agent Response</option>
+              <option value="INTERNAL_NOTE">Internal Note</option>
+              <option value="SYSTEM_UPDATE">System Update</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="commentContent">Comment</label>
+            <textarea
+              id="commentContent"
+              required
+              rows="5"
+              placeholder="Enter your comment..."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              onclick="closeModal('addCommentModal')"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">Add Comment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Escalated Tickets Modal -->
+    <div id="escalatedTicketsModal" class="modal large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Tickets Escalated to Me</h3>
+          <span class="close" onclick="closeModal('escalatedTicketsModal')"
+            >&times;</span
+          >
+        </div>
+        <div class="escalated-tickets-list" id="escalatedTicketsList">
+          <div class="loading">Loading escalated tickets...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Modal -->
+    <div id="performanceModal" class="modal large">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>My Performance</h3>
+          <span class="close" onclick="closeModal('performanceModal')"
+            >&times;</span
+          >
+        </div>
+        <div id="performanceContent">
+          <div class="loading">Loading performance data...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>My Profile</h3>
+          <span class="close" onclick="closeModal('profileModal')"
+            >&times;</span
+          >
+        </div>
+        <form id="profileForm">
+          <div class="profile-image-section">
+            <img
+              src="/placeholder.svg?height=100&width=100"
+              alt="Profile"
+              id="profileImageLarge"
+              class="profile-img-large"
+            />
+            <input
+              type="file"
+              id="profileImageInput"
+              accept="image/*"
+              style="display: none"
+            />
+            <button
+              type="button"
+              onclick="document.getElementById('profileImageInput').click()"
+              class="change-photo-btn"
+            >
+              Change Photo
+            </button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profileFirstName">First Name</label>
+              <input type="text" id="profileFirstName" required />
+            </div>
+            <div class="form-group">
+              <label for="profileLastName">Last Name</label>
+              <input type="text" id="profileLastName" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="profileEmail">Email</label>
+            <input type="email" id="profileEmail" readonly />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profilePhone">Phone Number</label>
+              <input type="tel" id="profilePhone" />
+            </div>
+            <div class="form-group">
+              <label for="profileEmployeeId">Employee ID</label>
+              <input type="text" id="profileEmployeeId" readonly />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="profileDepartments">Departments</label>
+            <input type="text" id="profileDepartments" readonly />
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              onclick="closeModal('profileModal')"
+              class="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="alert" id="alertMessage"></div>
+
+    <script src="Agent-Dashboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Help Desk</title>
+    <link rel="stylesheet" href="Admin-Dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>Help Desk - Admin</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="Search tickets, users..." onkeypress="handleGlobalSearchKeyPress(event)">
+                <button onclick="performGlobalSearch()" class="search-btn">Search</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="notifications" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationBadge">0</span>
+            </div>
+            <div class="user-menu" onclick="toggleUserMenu()">
+                <img src="/placeholder.svg?height=40&width=40" alt="Profile" id="profileImage" class="profile-img">
+                <div class="user-info">
+                    <span id="userName">Loading...</span>
+                    <small>Administrator</small>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active" data-section="dashboard">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="users">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="tickets">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Ticket Oversight</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="agents">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Agent Management</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="customers">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-user-friends"></i>
+                        <span>Customer Management</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="escalated">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Escalated Tickets</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="reports">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item" data-section="settings">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <div class="section-header">
+                <h1>Dashboard Overview</h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="refreshDashboard()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Users</p>
+                        <small class="stat-change positive">+5% from last month</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon tickets">
+                        <i class="fas fa-ticket-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalTickets">0</h3>
+                        <p>Total Tickets</p>
+                        <small class="stat-change positive">+12% from last week</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon agents">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="activeAgents">0</h3>
+                        <p>Active Agents</p>
+                        <small class="stat-change neutral">No change</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon escalated">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="escalatedTickets">0</h3>
+                        <p>Escalated Tickets</p>
+                        <small class="stat-change negative">Needs attention</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon satisfaction">
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="satisfactionRate">0%</h3>
+                        <p>Satisfaction Rate</p>
+                        <small class="stat-change positive">+3% from last month</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <button class="action-btn primary" onclick="showCreateAgentModal()">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Create Agent</span>
+                    </button>
+                    <button class="action-btn" onclick="showSection('tickets')">
+                        <i class="fas fa-eye"></i>
+                        <span>View All Tickets</span>
+                    </button>
+                    <button class="action-btn" onclick="showSection('escalated')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Escalated Tickets</span>
+                    </button>
+                    <button class="action-btn" onclick="exportReport('agent-performance')">
+                        <i class="fas fa-download"></i>
+                        <span>Export Reports</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h2>Recent Activity</h2>
+                <div class="activity-list" id="recentActivity">
+                    <div class="loading">Loading recent activity...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User Management Section -->
+        <section id="users-section" class="content-section">
+            <div class="section-header">
+                <h1>User Management</h1>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="showCreateUserModal()">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label for="userRoleFilter">Role:</label>
+                    <select id="userRoleFilter" onchange="filterUsers()">
+                        <option value="">All Roles</option>
+                        <option value="CUSTOMER">Customer</option>
+                        <option value="AGENT">Agent</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="userStatusFilter">Status:</label>
+                    <select id="userStatusFilter" onchange="filterUsers()">
+                        <option value="">All Status</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <input type="text" id="userSearchInput" placeholder="Search users..." onkeypress="handleUserSearchKeyPress(event)">
+                    <button onclick="searchUsers()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="6" class="loading">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="usersPagination"></div>
+        </section>
+
+        <!-- Ticket Oversight Section -->
+        <section id="tickets-section" class="content-section">
+            <div class="section-header">
+                <h1>Ticket Oversight</h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="refreshTickets()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label for="ticketStatusFilter">Status:</label>
+                    <select id="ticketStatusFilter" onchange="filterTickets()">
+                        <option value="">All Status</option>
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="PENDING_CUSTOMER_RESPONSE">Pending Response</option>
+                        <option value="RESOLVED">Resolved</option>
+                        <option value="CLOSED">Closed</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="ticketPriorityFilter">Priority:</label>
+                    <select id="ticketPriorityFilter" onchange="filterTickets()">
+                        <option value="">All Priorities</option>
+                        <option value="LOW">Low</option>
+                        <option value="MEDIUM">Medium</option>
+                        <option value="HIGH">High</option>
+                        <option value="CRITICAL">Critical</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <input type="text" id="ticketSearchInput" placeholder="Search by ticket ID..." onkeypress="handleTicketSearchKeyPress(event)">
+                    <button onclick="searchTickets()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="ticketsTable">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Title</th>
+                            <th>Customer</th>
+                            <th>Agent</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <tr>
+                            <td colspan="8" class="loading">Loading tickets...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="ticketsPagination"></div>
+        </section>
+
+        <!-- Agent Management Section -->
+        <section id="agents-section" class="content-section">
+            <div class="section-header">
+                <h1>Agent Management</h1>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="showCreateAgentModal()">
+                        <i class="fas fa-plus"></i> Add Agent
+                    </button>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label for="agentDepartmentFilter">Department:</label>
+                    <select id="agentDepartmentFilter" onchange="filterAgents()">
+                        <option value="">All Departments</option>
+                        <option value="Technical Support">Technical Support</option>
+                        <option value="Billing">Billing</option>
+                        <option value="Customer Service">Customer Service</option>
+                        <option value="Training">Training</option>
+                        <option value="General Support">General Support</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <input type="text" id="agentSearchInput" placeholder="Search agents..." onkeypress="handleAgentSearchKeyPress(event)">
+                    <button onclick="searchAgents()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="agents-grid" id="agentsGrid">
+                <div class="loading">Loading agents...</div>
+            </div>
+
+            <div class="pagination" id="agentsPagination"></div>
+        </section>
+
+        <!-- Customer Management Section -->
+        <section id="customers-section" class="content-section">
+            <div class="section-header">
+                <h1>Customer Management</h1>
+            </div>
+
+            <div class="filters-bar">
+                <div class="search-group">
+                    <input type="text" id="customerSearchInput" placeholder="Search customers..." onkeypress="handleCustomerSearchKeyPress(event)">
+                    <button onclick="searchCustomers()" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" id="customersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Company</th>
+                            <th>Total Tickets</th>
+                            <th>Resolved Tickets</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody">
+                        <tr>
+                            <td colspan="7" class="loading">Loading customers...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="customersPagination"></div>
+        </section>
+
+        <!-- Escalated Tickets Section -->
+        <section id="escalated-section" class="content-section">
+            <div class="section-header">
+                <h1>Escalated Tickets</h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="refreshEscalatedTickets()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="escalated-tickets-container" id="escalatedTicketsContainer">
+                <div class="loading">Loading escalated tickets...</div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports-section" class="content-section">
+            <div class="section-header">
+                <h1>Reports & Analytics</h1>
+            </div>
+
+            <div class="reports-grid">
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3>Agent Performance Report</h3>
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <p>Detailed performance metrics for all agents including resolution rates and customer satisfaction.</p>
+                    <div class="report-actions">
+                        <button class="btn-primary" onclick="viewAgentPerformance()">View Report</button>
+                        <button class="btn-secondary" onclick="exportReport('agent-performance', 'excel')">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn-secondary" onclick="exportReport('agent-performance', 'pdf')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3>Customer Satisfaction Report</h3>
+                        <i class="fas fa-smile"></i>
+                    </div>
+                    <p>Customer satisfaction metrics, ratings, and feedback analysis.</p>
+                    <div class="report-actions">
+                        <button class="btn-primary" onclick="viewCustomerSatisfaction()">View Report</button>
+                        <button class="btn-secondary" onclick="exportReport('customer-satisfaction', 'excel')">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn-secondary" onclick="exportReport('customer-satisfaction', 'pdf')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-header">
+                        <h3>Ticket Analytics</h3>
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <p>Comprehensive ticket statistics, trends, and resolution analytics.</p>
+                    <div class="report-actions">
+                        <button class="btn-primary" onclick="viewTicketAnalytics()">View Report</button>
+                        <button class="btn-secondary" onclick="exportReport('ticket-analytics', 'excel')">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Performance Table -->
+            <div class="performance-section" id="agentPerformanceSection" style="display: none;">
+                <h2>Agent Performance Details</h2>
+                <div class="table-container">
+                    <table class="data-table" id="performanceTable">
+                        <thead>
+                            <tr>
+                                <th>Agent Name</th>
+                                <th>Employee ID</th>
+                                <th>Departments</th>
+                                <th>Tickets Assigned</th>
+                                <th>Tickets Resolved</th>
+                                <th>Resolution Rate</th>
+                                <th>Avg Resolution Time</th>
+                                <th>Customer Rating</th>
+                                <th>Performance Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody id="performanceTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings-section" class="content-section">
+            <div class="section-header">
+                <h1>Settings</h1>
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3>Profile Settings</h3>
+                    <form id="profileForm">
+                        <div class="form-group">
+                            <label for="profileFirstName">First Name</label>
+                            <input type="text" id="profileFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileLastName">Last Name</label>
+                            <input type="text" id="profileLastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profileEmail">Email</label>
+                            <input type="email" id="profileEmail" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="tel" id="profilePhone">
+                        </div>
+                        <button type="submit" class="btn-primary">Update Profile</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Profile Picture</h3>
+                    <div class="profile-image-section">
+                        <img src="/placeholder.svg?height=100&width=100" alt="Profile" id="profileImageLarge" class="profile-img-large">
+                        <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                        <button type="button" onclick="document.getElementById('profileImageInput').click()" class="btn-secondary">
+                            Change Photo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New User</h3>
+                <span class="close" onclick="closeModal('createUserModal')">&times;</span>
+            </div>
+            <form id="createUserForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userFirstName">First Name</label>
+                        <input type="text" id="userFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userLastName">Last Name</label>
+                        <input type="text" id="userLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Password</label>
+                    <input type="password" id="userPassword" required minlength="8">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="userRole">Role</label>
+                        <select id="userRole" required onchange="toggleRoleFields()">
+                            <option value="">Select Role</option>
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="AGENT">Agent</option>
+                            <option value="ADMIN">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="userPhone">Phone Number</label>
+                        <input type="tel" id="userPhone">
+                    </div>
+                </div>
+                
+                <!-- Customer specific fields -->
+                <div id="customerFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="userCompany">Company Name</label>
+                        <input type="text" id="userCompany">
+                    </div>
+                    <div class="form-group">
+                        <label for="userAddress">Address</label>
+                        <textarea id="userAddress" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Agent specific fields -->
+                <div id="agentFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userEmployeeId">Employee ID</label>
+                            <input type="text" id="userEmployeeId" placeholder="Auto-generated if empty">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Departments</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="userDepartments" value="Technical Support"> Technical Support
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="userDepartments" value="Billing"> Billing
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="userDepartments" value="Customer Service"> Customer Service
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="userDepartments" value="Training"> Training
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="userDepartments" value="General Support"> General Support
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('createUserModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Agent Modal -->
+    <div id="createAgentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Agent</h3>
+                <span class="close" onclick="closeModal('createAgentModal')">&times;</span>
+            </div>
+            <form id="createAgentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="agentFirstName">First Name</label>
+                        <input type="text" id="agentFirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="agentLastName">Last Name</label>
+                        <input type="text" id="agentLastName" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="agentEmail">Email</label>
+                    <input type="email" id="agentEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="agentPassword">Password</label>
+                    <input type="password" id="agentPassword" required minlength="8">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="agentPhone">Phone Number</label>
+                        <input type="tel" id="agentPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="agentEmployeeId">Employee ID</label>
+                        <input type="text" id="agentEmployeeId" placeholder="Auto-generated if empty">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Departments</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agentDepartments" value="Technical Support"> Technical Support
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agentDepartments" value="Billing"> Billing
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agentDepartments" value="Customer Service"> Customer Service
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agentDepartments" value="Training"> Training
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="agentDepartments" value="General Support"> General Support
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('createAgentModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Agent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Agent Modal -->
+    <div id="updateAgentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update Agent</h3>
+                <span class="close" onclick="closeModal('updateAgentModal')">&times;</span>
+            </div>
+            <form id="updateAgentForm">
+                <input type="hidden" id="updateAgentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updateAgentFirstName">First Name</label>
+                        <input type="text" id="updateAgentFirstName">
+                    </div>
+                    <div class="form-group">
+                        <label for="updateAgentLastName">Last Name</label>
+                        <input type="text" id="updateAgentLastName">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="updateAgentPhone">Phone Number</label>
+                    <input type="tel" id="updateAgentPhone">
+                </div>
+                <div class="form-group">
+                    <label>Departments</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="updateAgentDepartments" value="Technical Support"> Technical Support
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="updateAgentDepartments" value="Billing"> Billing
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="updateAgentDepartments" value="Customer Service"> Customer Service
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="updateAgentDepartments" value="Training"> Training
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="updateAgentDepartments" value="General Support"> General Support
+                        </label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="updateAgentStatus">Agent Status</label>
+                        <select id="updateAgentStatus">
+                            <option value="ONLINE">Online</option>
+                            <option value="BUSY">Busy</option>
+                            <option value="AWAY">Away</option>
+                            <option value="OFFLINE">Offline</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateUserStatus">User Status</label>
+                        <select id="updateUserStatus">
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('updateAgentModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Agent</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update User Status Modal -->
+    <div id="updateUserStatusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Update User Status</h3>
+                <span class="close" onclick="closeModal('updateUserStatusModal')">&times;</span>
+            </div>
+            <form id="updateUserStatusForm">
+                <input type="hidden" id="updateStatusUserId">
+                <div class="form-group">
+                    <label for="newUserStatus">User Status</label>
+                    <select id="newUserStatus" required>
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('updateUserStatusModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ticket Details Modal -->
+    <div id="ticketDetailsModal" class="modal large">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="ticketDetailsTitle">Ticket Details</h3>
+                <span class="close" onclick="closeModal('ticketDetailsModal')">&times;</span>
+            </div>
+            <div id="ticketDetailsContent">
+                <div class="loading">Loading ticket details...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reassign Ticket Modal -->
+    <div id="reassignTicketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reassign Ticket</h3>
+                <span class="close" onclick="closeModal('reassignTicketModal')">&times;</span>
+            </div>
+            <form id="reassignTicketForm">
+                <input type="hidden" id="reassignTicketId">
+                <div class="form-group">
+                    <label for="newAgentSelect">Select New Agent</label>
+                    <select id="newAgentSelect" required>
+                        <option value="">Loading agents...</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('reassignTicketModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Reassign Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Escalate Ticket Modal -->
+    <div id="escalateTicketModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Escalate Ticket to Agent</h3>
+                <span class="close" onclick="closeModal('escalateTicketModal')">&times;</span>
+            </div>
+            <form id="escalateTicketForm">
+                <input type="hidden" id="escalateTicketId">
+                <div class="form-group">
+                    <label for="escalateAgentSelect">Select Agent</label>
+                    <select id="escalateAgentSelect" required>
+                        <option value="">Loading agents...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="escalationReason">Escalation Reason</label>
+                    <textarea id="escalationReason" required rows="3" placeholder="Please provide reason for escalation..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal('escalateTicketModal')" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Escalate Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifications Dropdown -->
+    <div class="notifications-dropdown" id="notificationsDropdown">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button onclick="markAllAsRead()" class="mark-all-read">Mark all as read</button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <div class="no-notifications">No new notifications</div>
+        </div>
+    </div>
+
+    <!-- User Menu Dropdown -->
+    <div class="user-dropdown" id="userDropdown">
+        <a href="#" onclick="showSection('settings')"><i class="fas fa-user"></i> Profile</a>
+        <a href="#" onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</a>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+
+    <!-- Alert Message -->
+    <div class="alert" id="alertMessage"></div>
+
+    <script src="Admin-Dashboard.js"></script>
+</body>
+</html>

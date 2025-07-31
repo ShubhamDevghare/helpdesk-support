@@ -1,0 +1,12 @@
+package com.helpdesk.enums;
+
+public enum TicketCategory {
+    TECHNICAL_SUPPORT,
+    BILLING_PAYMENTS,
+    ACCOUNT_MANAGEMENT,
+    FEATURE_REQUESTS,
+    GENERAL_INQUIRY,
+    NETWORK_CONNECTIVITY,
+    TRAINING_DOCUMENTATION,
+    OTHERS
+}
